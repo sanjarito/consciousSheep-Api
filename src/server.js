@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
     cors({
-        origin: CLIENT_ORIGIN
+        origin: CLIENT_ORIGINAL || CLIENT_ORIGIN
     })
 );
 
