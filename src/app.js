@@ -7,7 +7,7 @@ const { NODE_ENV } = require('./config')
 const favorsRouter = require('./favors/favors-router')
 const {CLIENT_ORIGIN} = require('./config');
 const {CLIENT_ORIGINAL} = require('./config');
-
+const { DB_URL } = require('./config')
 const app = express()
 
 const morganOption = (NODE_ENV === 'production')
@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
  })
 
  app.get('/api/', (req, res) => {
-   res.json({ok: true});
+   res.json({ok: DB_URL});
  });
 
 app.use('/api/favors', favorsRouter)
