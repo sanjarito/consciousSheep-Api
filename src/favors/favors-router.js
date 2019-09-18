@@ -13,11 +13,11 @@ const serializeFavor = favor => ({
 
 favorsRouter
 .route('/')
-  console.log('sadasda')
   .get((req, res, next) => {
     const knexInstance = req.app.get('db')
     FavorsService.getAllFavors(knexInstance)
       .then(favors => {
+        res.send('inside favors router')
         res.json(favors.map(serializeFavor))
       })
       .catch(next)
