@@ -17,7 +17,7 @@ favorsRouter
     const knexInstance = req.app.get('db')
     FavorsService.getAllFavors(knexInstance)
       .then(favors => {
-        res.send('inside favors router')
+        res.send(favors)
         res.json(favors.map(serializeFavor))
       })
       .catch(next)
