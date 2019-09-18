@@ -31,7 +31,7 @@ app.use(function errorHandler(error, req, res, next) {
 
 app.use(
   cors({
-    origin: CLIENT_ORIGINAL || CLIENT_ORIGIN
+    origin: '*'
   })
 );
 
