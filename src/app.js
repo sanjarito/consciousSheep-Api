@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
  })
 
  app.get('/api/', (req, res) => {
-   res.json({ok: 'working'});
+   res.send('Api call working');
  });
 
 app.use('/api/favors', favorsRouter)

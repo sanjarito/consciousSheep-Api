@@ -6,9 +6,12 @@ const favorsRouter = express.Router()
 const jsonParser = express.json()
 
 const serializeFavor = favor => ({
-    title: favor.favor_title,
-    description: favor.favor_description,
-
+    favor_title: favor.favor_title,
+    favor_category:favor.favor_category,
+    favor_description:favor.favor_description,
+    favor_hoursrequired:favor.favor_hoursrequired,
+    favor_id:favor.favor_id,
+    favor_status:favor.favor_status,
   })
 
 favorsRouter
