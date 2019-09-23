@@ -25,4 +25,20 @@ favorsRouter
       .catch(next)
   })
 
+favorsRouter
+.route('/:favor_id')
+   .get((req, res, next) => {
+     const knexInstance = req.app.get('db')
+   FavorsService.getById(knexInstance, req.params.favor_id)
+     .then(favor => {
+       if (!favor) {
+        return res.status(404).json({
+           error: { message: `Favor doesn't exist` }
+        })
+      }
+       res.json(favor)
+     })
+     .catch(next)
+   })
+
 module.exports = favorsRouter

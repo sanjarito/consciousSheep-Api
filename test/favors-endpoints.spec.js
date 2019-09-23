@@ -15,31 +15,31 @@ describe('Favors Endpoints', function() {
     app.set('db', db)
   })
 
+  //Hook ups for testing endpoints
   after('disconnect from db', () => db.destroy())
-
   before('clean the table', () => db('conscioussheep_favors').truncate())
+  afterEach('cleanup', () => db('conscioussheep_favors').truncate())
 
-     context('Given there are no favors in the database', () => {
-
-
+  //All tests for /api/favor endpoint
   describe('GET /api/favors', () => {
 
-    context(`Given no favors`, () => {
+    //Given no favors context
+    context(`Given no favors in database`, () => {
       it(`responds with 200 and an empty list`, () => {
         return supertest(app)
           .get('/api/favors')
           .expect(200, [])
       })
     })
-
+    //Given favors context
     context('Given there are favors in the database', () => {
-        const testFavors = fixtures.makeFavorsArray()
+      const testFavors = fixtures.makeFavorsArray()
 
-     beforeEach('insert favors', () => {
+      beforeEach('insert favors', () => {
        return db
          .into('conscioussheep_favors')
          .insert(testFavors)
-     })
+       })
 
        it('GET favors responds with 200 and all of the favors', () => {
        return supertest(app)
@@ -49,5 +49,36 @@ describe('Favors Endpoints', function() {
        })
      })
    })
+
+
+   describe(`GET /favors/:favor_id`, () => {
+
+     context(`Given favors`, () => {
+       const testFavors = fixtures.makeFavorsArray()
+
+       beforeEach('insert favors', () => {
+        return db
+          .into('conscioussheep_favors')
+          .insert(testFavors)
+        })
+
+       it.only('GET api/favors/:favor_id responds with 200 and the specified favor', () => {
+          const favor_id = 2
+          const expectedFavor = testFavors[favor_id - 1]
+          return supertest(app)
+         .get(`/favors/${favor_id}`)
+         .expect(200, expectedFavor)
+       })
+     })
+     context(`Given no favors`, () => {
+       it(`responds with 404`, () => {
+         const favorId = 123456
+         return supertest(app)
+           .get(`/favors/${favorId}`)
+           .expect(404, {})
+       })
+     })
+
  })
+
 })
