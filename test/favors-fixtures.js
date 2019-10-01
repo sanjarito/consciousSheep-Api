@@ -82,6 +82,18 @@ function cleanTables(db) {
   )
 }
 
+function cleanTables(db) {
+  return db.transaction(trx =>
+    trx.raw(
+      `TRUNCATE
+        conscioussheep_favors,
+        conscioussheep_users
+      `
+    )
+  )
+}
+
+
 module.exports = {
   makeFavorsArray,
   cleanTables,

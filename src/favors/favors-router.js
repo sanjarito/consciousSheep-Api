@@ -6,11 +6,11 @@ const favorsRouter = express.Router()
 const jsonParser = express.json()
 
 const serializeFavor = favor => ({
-    favor_title: favor.favor_title,
+    favor_title: xss(favor.favor_title),
     favor_category:favor.favor_category,
     favor_requester:favor.favor_requester,
     favor_fulfiller:favor.favor_fulfiller,
-    favor_description:favor.favor_description,
+    favor_description:xss(favor.favor_description),
     favor_hoursrequired:favor.favor_hoursrequired,
     favor_id:favor.favor_id,
     favor_status:favor.favor_status,
@@ -51,25 +51,27 @@ favorsRouter
 
 favorsRouter
 .route('/:favor_id')
-   .get((req, res, next) => {
-     const knexInstance = req.app.get('db')
-   FavorsService.getById(knexInstance, req.params.favor_id)
-     .then(favor => {
-       if (!favor) {
-        return res.status(404).json({
-           error: { message: `Favor doesn't exist` }
-        })
-      }
-      res.json({
-        favor_id: favor.favor_id,
-        favor_category: favor.favor_category,
-        favor_title: xss(favor.favor_title), // sanitize title
-        favor_description: xss(favor.favor_description), // sanitize content
-
-      })
-     })
-     .catch(next)
+   .all((req, res, next) => {
+     FavorsService.getById(
+       req.app.get('db'),
+       req.params.favor_id
+     )
+       .then(favor => {
+         if (!favor) {
+           return res.status(404).json({
+             error: { message: `Favor doesn't exist` }
+           })
+         }
+         res.favor = favor
+         next()
+       })
+       .catch(next)
    })
+
+   .get((req, res, next) => {
+      res.json(serializeFavor(res.favor))
+     })
+
    .delete((req, res, next) => {
      FavorsService.deleteFavor(
        req.app.get('db'),
@@ -80,5 +82,21 @@ favorsRouter
      })
      .catch(next)
    })
+
+   .patch(jsonParser, (req, res, next) => {
+     const { favor_title,favor_category,favor_description  } = req.body
+     const favorToUpdate = { favor_title, favor_category ,favor_description }
+     FavorsService.updateFavor(
+     req.app.get('db'),
+     req.params.favor_id,
+     favorToUpdate
+   )
+     .then(numRowsAffected => {
+       res.status(204).end()
+     })
+     .catch(next)
+
+   })
+
 
 module.exports = favorsRouter

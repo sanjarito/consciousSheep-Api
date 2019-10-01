@@ -158,10 +158,17 @@ describe('Favors Endpoints', function() {
     })
   })
 
-  describe.only(`DELETE /favors/:favor_id`, () => {
-   context('Given there are favors in the database', () => {
+  describe(`DELETE /api/favors/:favor_id`, () => {
+    context(`Given no favors`, () => {
+       it(`responds with 404`, () => {
+         const favorId = 123456
+         return supertest(app)
+           .delete(`/api/favors/${favorId}`)
+           .expect(404, { error: { message: `Favor doesn't exist` } })
+       })
+    })
 
-
+    context('Given there are favors in the database', () => {
      beforeEach('insert favors', () => {
        return db
          .into('conscioussheep_favors')
@@ -182,5 +189,52 @@ describe('Favors Endpoints', function() {
      })
    })
   })
+
+   describe(`PATCH /api/favors/:favor_id`, () => {
+   context(`Given no favors`, () => {
+     it(`responds with 404`, () => {
+       const favorId = 123456
+       return supertest(app)
+         .patch(`/api/favors/${favorId}`)
+         .expect(404, { error: { message: `Favor doesn't exist` } })
+     })
+   })
+
+      context('Given there are favors in the database', () => {
+
+
+      beforeEach('insert favors', () => {
+        return db
+          .into('conscioussheep_favors')
+          .insert(testFavors)
+      })
+
+
+      it('responds with 204 and updates the article', () => {
+        const favor_id = 2
+        const updateFavor = {
+          favor_title: 'updated article title',
+          favor_category: 'Borrow Items',
+          favor_description: 'updated article content',
+        }
+        const expectedFavor = {
+        ...testFavors[favor_id - 1],
+        ...updateFavor
+        }
+
+        return supertest(app)
+          .patch(`/api/favors/${favor_id}`)
+          .send(updateFavor)
+          .expect(204)
+          .then(res =>
+            supertest(app)
+            .get(`/api/favors/${favor_id}`)
+            .expect(expectedFavor)
+            )
+      })
+    })
+
+ })
+
 
  })

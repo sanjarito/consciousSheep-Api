@@ -5,6 +5,8 @@ const cors = require('cors')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const favorsRouter = require('./favors/favors-router')
+const usersRouter = require('./users/users-router')
+const authRouter = require('./auth/auth-router')
 const {CLIENT_ORIGIN} = require('./config');
 const {CLIENT_ORIGINAL} = require('./config');
 const app = express()
@@ -44,6 +46,8 @@ app.get('/', (req, res) => {
  });
 
 app.use('/api/favors', favorsRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/auth', authRouter)
 
 
 

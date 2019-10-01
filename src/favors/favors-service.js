@@ -18,6 +18,11 @@ const FavorsService = {
    return knex('conscioussheep_favors')
      .where({ favor_id })
      .delete()
+   },
+   updateFavor(knex, favor_id, newFavorFields) {
+   return knex('conscioussheep_favors')
+   .where({ favor_id })
+   .update(newFavorFields)
    }
 }
 
