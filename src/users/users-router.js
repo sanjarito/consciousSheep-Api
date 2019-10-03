@@ -4,6 +4,7 @@ const xss = require('xss')
 const UsersService = require('./users-service')
 const usersRouter = express.Router()
 const jsonParser = express.json()
+const { requireAuth } = require('../middleware/jwt-auth')
 
 const serializeUser = user => ({
     user_about: xss(user.user_about),
@@ -15,6 +16,7 @@ const serializeUser = user => ({
 
 usersRouter
 .route('/')
+  .all(requireAuth)
   .get((req, res, next) => {
     const knexInstance = req.app.get('db')
     UsersService.getAllUsers(knexInstance)
@@ -48,6 +50,7 @@ usersRouter
 
 usersRouter
 .route('/:user_id')
+  .all(requireAuth)
    .all((req, res, next) => {
      UsersService.getById(
        req.app.get('db'),

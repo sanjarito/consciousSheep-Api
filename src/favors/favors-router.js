@@ -4,6 +4,7 @@ const xss = require('xss')
 const FavorsService = require('./favors-service')
 const favorsRouter = express.Router()
 const jsonParser = express.json()
+const { requireAuth } = require('../middleware/jwt-auth')
 
 const serializeFavor = favor => ({
     favor_title: xss(favor.favor_title),
@@ -18,6 +19,7 @@ const serializeFavor = favor => ({
 
 favorsRouter
 .route('/')
+.all(requireAuth)
   .get((req, res, next) => {
     const knexInstance = req.app.get('db')
     FavorsService.getAllFavors(knexInstance)
@@ -51,6 +53,7 @@ favorsRouter
 
 favorsRouter
 .route('/:favor_id')
+ .all(requireAuth)
    .all((req, res, next) => {
      FavorsService.getById(
        req.app.get('db'),

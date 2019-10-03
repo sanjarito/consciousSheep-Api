@@ -1,3 +1,6 @@
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+
 function makeFavorsArray() {
   return [
     {
@@ -72,15 +75,6 @@ function makeUsersArray() {
   ]
 }
 
-function cleanTables(db) {
-  return db.transaction(trx =>
-    trx.raw(
-      `TRUNCATE
-        conscioussheep_favors
-      `
-    )
-  )
-}
 
 function cleanTables(db) {
   return db.transaction(trx =>
@@ -93,9 +87,42 @@ function cleanTables(db) {
   )
 }
 
+function makeUsersAndFavors() {
+  const testUsers = makeUsersArray()
+  const testFavors = makeFavorsArray()
+  return { testUsers, testFavors}
+}
+
+
+function seedUsersTables(db, users) {
+  // use a transaction to group the queries and auto rollback on any failure
+  return db.transaction(async trx => {
+    await trx.into('conscioussheep_users').insert(users)
+    // update the auto sequence to match the forced id values
+  })
+}
+
+function seedFavorsTables(db, favors) {
+  return db.transaction(async trx => {
+    await trx.into('conscioussheep_favors').insert(favors)
+  })
+}
+
+function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
+  const token = jwt.sign({ user_id: user.user_id }, secret, {
+    subject: user.user_email,
+    algorithm: 'HS256',
+  })
+  return `Bearer ${token}`
+}
+
 
 module.exports = {
   makeFavorsArray,
   cleanTables,
-  makeUsersArray
+  makeUsersArray,
+  makeUsersAndFavors,
+  makeAuthHeader,
+  seedUsersTables,
+  seedFavorsTables
 }

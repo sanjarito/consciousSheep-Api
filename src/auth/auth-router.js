@@ -35,7 +35,7 @@ authRouter
             })
           } else {
             return res.status(400).json({
-                error: 'Incorrect user_name or password',
+                error: 'Incorrect user_email or password',
               })
           }
 

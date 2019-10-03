@@ -65,10 +65,10 @@ describe('Auth Endpoints', function() {
            return supertest(app)
            .post('/api/auth/login')
            .send(userInvalidPass)
-           .expect(400, { error: `Incorrect user_email or user_password` })
+           .expect(400, { error: `Incorrect user_email or password` })
          })
 
-         it.only(`responds 200 and JWT auth token using secret when valid credentials`, () => {
+         it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
            const userValidCreds = {
              user_email: testUser.user_email,
              user_password: testUser.user_password,
@@ -83,7 +83,7 @@ describe('Auth Endpoints', function() {
                algorithm: 'HS256',
              }
            )
-           
+
            return supertest(app)
              .post('/api/auth/login')
              .send(userValidCreds)

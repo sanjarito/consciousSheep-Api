@@ -3,6 +3,7 @@ const fixtures = require('./favors-fixtures')
 const app = require('../src/app')
 const testFavors = fixtures.makeFavorsArray()
 const testUsers = fixtures.makeUsersArray()
+const jwt = require('jsonwebtoken')
 
 
 describe('Favors Endpoints', function() {
@@ -17,10 +18,16 @@ describe('Favors Endpoints', function() {
     app.set('db', db)
   })
 
+  const testUser = testUsers[0]
+
+   const authHeader = fixtures.makeAuthHeader(testUsers[0])
+
   //Hook ups for testing endpoints
   after('disconnect from db', () => db.destroy())
   before('clean the table', () => db('conscioussheep_favors').truncate())
+  before('insert users', () => {fixtures.seedUsersTables(db,testUsers)})
    afterEach('cleanup',() => db('conscioussheep_favors').truncate())
+
 
   //All tests for /api/favor endpoint
   describe('GET /api/favors', () => {
@@ -30,6 +37,7 @@ describe('Favors Endpoints', function() {
       it(`responds with 200 and an empty list`, () => {
         return supertest(app)
           .get('/api/favors')
+          .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
           .expect(200, [])
       })
 
@@ -37,6 +45,7 @@ describe('Favors Endpoints', function() {
         const favorId = 123456
         return supertest(app)
           .get(`/api/favors/${favorId}`)
+          .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
           .expect(404, {
             error: { message: `Favor doesn't exist` }
           })
@@ -51,9 +60,11 @@ describe('Favors Endpoints', function() {
        })
 
 
+
        it('GET favors responds with 200 and all of the favors', () => {
        return supertest(app)
          .get('/api/favors')
+         .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
          .expect(200, testFavors)
 
 
@@ -64,6 +75,7 @@ describe('Favors Endpoints', function() {
           const expectedFavor = testFavors[favor_id - 1]
           return supertest(app)
          .get(`/api/favors/${favor_id}`)
+         .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
          .expect(200, expectedFavor)
        })
 
@@ -88,15 +100,16 @@ describe('Favors Endpoints', function() {
      it('removes XSS attack content', () => {
        return supertest(app)
          .get(`/api/favors/${maliciousFavor.favor_id}`)
+         .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
          .expect(200)
          .expect(res => {
            expect(res.body.favor_title).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;')
            expect(res.body.favor_description).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
          })
+       })
      })
    })
-      })
-    })
+  })
 
     describe(`POST /api/favors`, () => {
      it(`creates a favor, responding with 201 and the new favor`,  function() {
@@ -112,6 +125,7 @@ describe('Favors Endpoints', function() {
       }
        return supertest(app)
          .post('/api/favors')
+         .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
          .send(newFavor)
            .expect(201)
            .expect(res => {
@@ -127,6 +141,7 @@ describe('Favors Endpoints', function() {
           .then(postRes =>
            supertest(app)
              .get(`/api/favors/${postRes.body.favor_id}`)
+             .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
              .expect(postRes.body)
          )
        })
@@ -150,6 +165,7 @@ describe('Favors Endpoints', function() {
 
         return supertest(app)
           .post('/api/favors/')
+          .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
           .send(newFavor)
           .expect(400, {
             error: { message: `Missing '${field}' in request body` }
@@ -164,6 +180,7 @@ describe('Favors Endpoints', function() {
          const favorId = 123456
          return supertest(app)
            .delete(`/api/favors/${favorId}`)
+           .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
            .expect(404, { error: { message: `Favor doesn't exist` } })
        })
     })
@@ -180,10 +197,12 @@ describe('Favors Endpoints', function() {
        const expectedfavors = testFavors.filter(favor => favor.favor_id !== idToRemove)
        return supertest(app)
          .delete(`/api/favors/${idToRemove}`)
+         .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
          .expect(204)
          .then(res =>
            supertest(app)
              .get(`/api/favors`)
+             .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
              .expect(expectedfavors)
          )
      })
@@ -196,6 +215,7 @@ describe('Favors Endpoints', function() {
        const favorId = 123456
        return supertest(app)
          .patch(`/api/favors/${favorId}`)
+         .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
          .expect(404, { error: { message: `Favor doesn't exist` } })
      })
    })
@@ -224,11 +244,13 @@ describe('Favors Endpoints', function() {
 
         return supertest(app)
           .patch(`/api/favors/${favor_id}`)
+          .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
           .send(updateFavor)
           .expect(204)
           .then(res =>
             supertest(app)
             .get(`/api/favors/${favor_id}`)
+            .set('Authorization', fixtures.makeAuthHeader(testUsers[0]))
             .expect(expectedFavor)
             )
       })
