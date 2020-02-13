@@ -53,7 +53,7 @@ favorsRouter
 
 favorsRouter
 .route('/:favor_id')
- .all(requireAuth)
+.all(requireAuth)
    .all((req, res, next) => {
      FavorsService.getById(
        req.app.get('db'),
@@ -65,6 +65,7 @@ favorsRouter
              error: { message: `Favor doesn't exist` }
            })
          }
+         console.log(favor)
          res.favor = favor
          next()
        })
