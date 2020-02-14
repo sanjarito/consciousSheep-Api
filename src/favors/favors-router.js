@@ -19,7 +19,7 @@ const serializeFavor = favor => ({
 
 favorsRouter
 .route('/')
-.all(requireAuth)
+// .all(requireAuth)
   .get((req, res, next) => {
     const knexInstance = req.app.get('db')
     FavorsService.getAllFavors(knexInstance)
