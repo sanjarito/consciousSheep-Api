@@ -45,7 +45,11 @@ app.get('/', (req, res) => {
    res.send('Api call working');
  });
 
-app.use('/api/favors', favorsRouter)
+ app.get('/api/favors', (req, res) => {
+   res.send('inside favors page');
+ });
+
+// app.use('/api/favors', favorsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)
 
