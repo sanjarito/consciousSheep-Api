@@ -9,6 +9,7 @@ const usersRouter = require('./users/users-router')
 const authRouter = require('./auth/auth-router')
 const {CLIENT_ORIGIN} = require('./config');
 const {CLIENT_ORIGINAL} = require('./config');
+const FavorsService = require('./favors-service')
 const app = express()
 
 const morganOption = (NODE_ENV === 'production')
@@ -45,11 +46,17 @@ app.get('/', (req, res) => {
    res.send('Api call working');
  });
 
- app.get('/api/favors', (req, res) => {
-   res.send('inside favors page');
+ app.get('/api/getfavors', (req, res) => {
+     const knexInstance = req.app.get('db')
+     FavorsService.getAllFavors(knexInstance)
+       .then(favors => {
+         res.json(favors)
+       })
+       .catch(next)
+
  });
 
-// app.use('/api/favors', favorsRouter)
+app.use('/api/favors', favorsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)
 
